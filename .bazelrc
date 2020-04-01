@@ -1,0 +1,6 @@
+# x86 CPU family: https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
+build --host_copt=-march=x86-64
+build --copt=-march=x86-64
+build --cxxopt=-std=c++14
+build --host_cxxopt=-std=c++14
+build --spawn_strategy=local

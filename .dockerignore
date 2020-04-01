@@ -1,0 +1,4 @@
+*.pb
+bazel*
+.vscode
+docker
