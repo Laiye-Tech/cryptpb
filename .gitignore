@@ -1,6 +1,5 @@
 bazel-*
-saved_model.de.pb
-saved_model.en.pb
 .vscode/settings.json
 bazel-cryptpb
 saved_model.en.ex
+output/*

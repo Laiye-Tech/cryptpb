@@ -11,7 +11,6 @@ http_archive(
 load("@rules_foreign_cc//:workspace_definitions.bzl", "rules_foreign_cc_dependencies")
 
 rules_foreign_cc_dependencies([
-    # "//:built_cmake_toolchain",
 ])
 
 http_archive(
@@ -33,9 +32,9 @@ all_content = """filegroup(name = "all", srcs = glob(["**"]), visibility = ["//v
 http_archive(
     name = "cryptopp",
     build_file_content = all_content,
-    strip_prefix = "cryptopp-CRYPTOPP_8_2_0",
-    sha256 = "1e5052e356bdefdfc742d0cfd480381a15d08d3a78c8a0383139b9fbe84d0dd5",
-    urls = ["https://github.com/weidai11/cryptopp/archive/CRYPTOPP_8_2_0.zip"],
+    strip_prefix = "cryptopp-CRYPTOPP_5_6_5",
+    sha256 = "c934d2c427a0ef197ea989a00f7b6d866d110dd55257d2944d0513b382b7e2b4",
+    urls = ["https://github.com/weidai11/cryptopp/archive/CRYPTOPP_5_6_5.zip"],
 )
 
 http_archive(
@@ -45,16 +44,3 @@ http_archive(
     sha256 = "f9640c00d9938bedb291a21f9287902a3a8cee38db6910b905f8eba4a6416204",
     urls = ["https://github.com/jarro2783/cxxopts/archive/v2.2.0.zip"],
 )
-
-# boost
-# load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
-# git_repository(
-#     name = "com_github_nelhage_rules_boost",
-#     commit = "9f9fb8b2f0213989247c9d5c0e814a8451d18d7f",
-#     remote = "https://github.com/nelhage/rules_boost",
-#     shallow_since = "1570056263 -0700",
-# )
-
-# load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
-# boost_deps()
