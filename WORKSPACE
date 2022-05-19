@@ -33,15 +33,22 @@ all_content = """filegroup(name = "all", srcs = glob(["**"]), visibility = ["//v
 http_archive(
     name = "cryptopp",
     build_file_content = all_content,
-    strip_prefix = "cryptopp-CRYPTOPP_5_6_5",
     sha256 = "c934d2c427a0ef197ea989a00f7b6d866d110dd55257d2944d0513b382b7e2b4",
+    strip_prefix = "cryptopp-CRYPTOPP_5_6_5",
     urls = ["https://github.com/weidai11/cryptopp/archive/CRYPTOPP_5_6_5.zip"],
 )
 
 http_archive(
     name = "cxxopts",
     build_file_content = all_content,
-    strip_prefix = "cxxopts-2.2.0",
     sha256 = "f9640c00d9938bedb291a21f9287902a3a8cee38db6910b905f8eba4a6416204",
+    strip_prefix = "cxxopts-2.2.0",
     urls = ["https://github.com/jarro2783/cxxopts/archive/v2.2.0.zip"],
+)
+
+http_archive(
+    name = "com_google_googletest",
+    sha256 = "b4870bf121ff7795ba20d20bcdd8627b8e088f2d1dab299a031c1034eddc93d5",
+    strip_prefix = "googletest-release-1.11.0",
+    url = "https://github.com/google/googletest/archive/refs/tags/release-1.11.0.tar.gz",
 )
