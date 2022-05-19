@@ -14,25 +14,57 @@ make(
 
 cmake_external(
     name = "cxxopts",
+    headers_only = True,
     lib_source = "@cxxopts//:all",
     make_commands = [
         "make -j$(nproc)",
         "make install",
     ],
-    headers_only = True,
 )
 
 cc_binary(
     name = "cryptfile",
     srcs = [
         "cryptfile.cc",
-        "functions.h",
         "fileutils.h",
+        "functions.h",
         "functions-header.h",
+    ],
+    includes = [
+        "cryptopp/include",
+        "cxxopts/include",
     ],
     deps = [
         ":cryptopp",
         ":cxxopts",
     ],
-    includes = ["cryptopp/include","cxxopts/include"],
+)
+
+cc_binary(
+    name = "libcryptfile.so",
+    srcs = [
+        "cryptfile.cc",
+        "fileutils.h",
+        "functions.h",
+        "functions-header.h",
+    ],
+    includes = [
+        "cryptopp/include",
+        "cxxopts/include",
+    ],
+    linkshared = True,
+    deps = [
+        ":cryptopp",
+        ":cxxopts",
+    ],
+)
+
+cc_test(
+    name = "libcrypt_test",
+    size = "small",
+    srcs = ["libcrypt_test.cc"],
+    deps = [
+        ":cryptopp",
+        "@com_google_googletest//:gtest_main",
+    ],
 )

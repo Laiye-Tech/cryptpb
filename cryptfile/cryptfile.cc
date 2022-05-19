@@ -17,7 +17,7 @@ using Clock = std::chrono::system_clock;
 
 // using CryptoPP::ArraySink;
 
-string CBCMode_Encrypt(const string &text, byte key[], int keySize, byte iv[])
+extern "C" string CBCMode_Encrypt(const string &text, byte key[], int keySize, byte iv[])
 {
     string cipher = "";
     //Encryption
@@ -37,7 +37,7 @@ string CBCMode_Encrypt(const string &text, byte key[], int keySize, byte iv[])
     }
     return cipher;
 }
-string CBCMode_Decrypt(const string &cipher, byte key[], int keySize, byte iv[])
+extern "C" string CBCMode_Decrypt(const string &cipher, byte key[], int keySize, byte iv[])
 {
     string recovered = "";
     //Decryption
