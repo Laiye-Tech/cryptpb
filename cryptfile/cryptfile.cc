@@ -1,7 +1,9 @@
 #include "cryptopp/aes.h"
+
 using CryptoPP::AES;
 
 #include "cryptopp/modes.h"
+
 using CryptoPP::CBC_Mode;
 
 #include "functions.h"
@@ -9,20 +11,23 @@ using CryptoPP::CBC_Mode;
 #include "fileutils.h"
 #include <chrono>
 #include <iomanip>
-// #include <boost/algorithm/hex.hpp>
-// using namespace boost::algorithm;
 
 using namespace std::chrono_literals;
 using Clock = std::chrono::system_clock;
 
-// using CryptoPP::ArraySink;
+const byte iv[AES::BLOCKSIZE] = {0x37, 0x37, 0x37, 0x37,
+                                 0x37, 0x37, 0x37, 0x37,
+                                 0x37, 0x37, 0x37, 0x37,
+                                 0x37, 0x37, 0x37, 0x37};
+#ifndef LAIYE_MODEL_ENCRYPT_KEY
+#define LAIYE_MODEL_ENCRYPT_KEY ""
+#endif
 
-extern "C" string CBCMode_Encrypt(const string &text, byte key[], int keySize, byte iv[])
-{
+// using CryptoPP::ArraySink;
+string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) {
     string cipher = "";
     //Encryption
-    try
-    {
+    try {
         CBC_Mode<AES>::Encryption e;
         e.SetKeyWithIV(key, keySize, iv);
         // The StreamTransformationFilter adds padding
@@ -30,57 +35,62 @@ extern "C" string CBCMode_Encrypt(const string &text, byte key[], int keySize, b
         //  to the block size of the cipher.
         StringSource(text, true, new StreamTransformationFilter(e, new StringSink(cipher))); // StringSource
     }
-    catch (const CryptoPP::Exception &e)
-    {
+    catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
         exit(1);
     }
     return cipher;
 }
-extern "C" string CBCMode_Decrypt(const string &cipher, byte key[], int keySize, byte iv[])
-{
+
+extern "C" string CBCMode_Encrypt(const string &text) {
+    byte key[16];
+    strcpy(reinterpret_cast<char *>(key), LAIYE_MODEL_ENCRYPT_KEY);
+    return DO_CBCMode_Encrypt(text, key, sizeof(key));
+}
+
+string DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize) {
     string recovered = "";
     //Decryption
-    try
-    {
+    try {
         CBC_Mode<AES>::Decryption d;
         d.SetKeyWithIV(key, keySize, iv);
         // The StreamTransformationFilter removes
         //  padding as required.
         StringSource s(cipher, true, new StreamTransformationFilter(d, new StringSink(recovered))); // StringSource
     }
-    catch (const CryptoPP::Exception &e)
-    {
+    catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
         exit(1);
     }
     return recovered;
 }
 
-string tp2str(const Clock::time_point &tp)
-{
+extern "C" string CBCMode_Decrypt(const string &cipher) {
+    byte key[16];
+    strcpy(reinterpret_cast<char *>(key), LAIYE_MODEL_ENCRYPT_KEY);
+    return DO_CBCMode_Encrypt(cipher, key, sizeof(key));
+}
+
+string tp2str(const Clock::time_point &tp) {
     std::time_t t_c = Clock::to_time_t(tp);
     std::stringstream ss;
     ss << std::put_time(std::localtime(&t_c), "%F %T");
     return ss.str();
 }
 
-Clock::time_point str2tp(const string &expired_date)
-{
+Clock::time_point str2tp(const string &expired_date) {
     std::tm tm = {};
     std::stringstream ss(expired_date);
     ss >> std::get_time(&tm, "%y-%m-%d %H:%M:%S");
     return Clock::from_time_t(std::mktime(&tm));
 }
 
-void print_tp(const Clock::time_point &tp)
-{
+void print_tp(const Clock::time_point &tp) {
     std::time_t t_c = Clock::to_time_t(tp);
     std::cout << std::put_time(std::localtime(&t_c), "%F %T") << '\n';
 }
 
-std::string transform(const std::string &input, const std::string &key)
-{
+std::string transform(const std::string &input, const std::string &key) {
     std::string output(input);
     for (unsigned int i = 0; i < input.size(); i++)
         output[i] = input[i] ^ key[i % (key.size())];
@@ -88,55 +98,51 @@ std::string transform(const std::string &input, const std::string &key)
     return output;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     string mod("enc");
     string input("tmp_input");
     string output("tmp_output");
+    string key("key");
 
     cxxopts::Options options("cryptfile", "文件加解密");
     options.positional_help("[optional args]")
-        .show_positional_help();
+            .show_positional_help();
     options.add_options()
-        ("m,mod", "mode: enc/dec", cxxopts::value<string>(mod))
-        ("i,input", "input file name", cxxopts::value<string>(input))
-        ("o,output", "output file name", cxxopts::value<string>(output))
-        ("help", "Print help");
+            ("m,mod", "mode: enc/dec", cxxopts::value<string>(mod))
+            ("i,input", "input file name", cxxopts::value<string>(input))
+            ("o,output", "output file name", cxxopts::value<string>(output))
+            ("k, key", "key to enc/dec model", cxxopts::value<string>(key))
+            ("help", "Print help");
+
     auto result = options.parse(argc, argv);
-    if (result.count("help") || result.arguments().size() == 0)
-    {
+    if (result.count("help") || result.arguments().size() == 0) {
         std::cout << options.help() << std::endl;
         exit(0);
     }
 
-    if (!FileUtils::file_exists(input))
-    {
+    if (!FileUtils::file_exists(input)) {
         std::cout << "input file is not exists." << std::endl;
         exit(0);
     }
 
-    //Define the key and iv
-    byte key[AES::DEFAULT_KEYLENGTH] = {0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b, 0x8b};
-    byte iv[AES::BLOCKSIZE] = {0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37};
 
-    if (mod == "enc")
-    {
+    //Define the key and iv
+    byte byte_key[AES::DEFAULT_KEYLENGTH];
+    strcpy(reinterpret_cast<char *>(byte_key), key.c_str());
+
+    if (mod == "enc") {
         auto data = FileUtils::read(input);
-        auto cipher = CBCMode_Encrypt(data, key, sizeof(key), iv);
+        auto cipher = DO_CBCMode_Encrypt(data, byte_key, sizeof(key));
         FileUtils::write(output, cipher);
         cout << "加密完成" << endl;
         exit(0);
-    }
-    else if (mod == "dec")
-    {
+    } else if (mod == "dec") {
         auto data = FileUtils::read(input);
-        auto plain = CBCMode_Decrypt(data, key, sizeof(key), iv);
+        auto plain = DO_CBCMode_Decrypt(data, byte_key, sizeof(key));
         FileUtils::write(output, plain);
         cout << "解密完成" << endl;
         exit(0);
-    }
-    else
-    {
+    } else {
         cout << "invalid mod" << endl;
     }
 

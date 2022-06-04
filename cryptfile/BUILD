@@ -48,6 +48,9 @@ cc_binary(
         "functions.h",
         "functions-header.h",
     ],
+    defines = [
+        "LAIYE_MODEL_ENCRYPT_KEY=\\\"$(LAIYE_MODEL_ENCRYPT_KEY)\\\"",
+    ],
     includes = [
         "cryptopp/include",
         "cxxopts/include",
