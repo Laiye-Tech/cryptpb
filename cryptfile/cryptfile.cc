@@ -19,6 +19,8 @@ const byte iv[AES::BLOCKSIZE] = {0x37, 0x37, 0x37, 0x37,
                                  0x37, 0x37, 0x37, 0x37,
                                  0x37, 0x37, 0x37, 0x37,
                                  0x37, 0x37, 0x37, 0x37};
+const int key_length = 16;
+
 #ifndef LAIYE_MODEL_ENCRYPT_KEY
 #define LAIYE_MODEL_ENCRYPT_KEY ""
 #endif
@@ -43,9 +45,8 @@ string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) {
 }
 
 extern "C" string CBCMode_Encrypt(const string &text) {
-    byte key[16];
-    strcpy(reinterpret_cast<char *>(key), LAIYE_MODEL_ENCRYPT_KEY);
-    return DO_CBCMode_Encrypt(text, key, sizeof(key));
+    byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
+    return DO_CBCMode_Encrypt(text, key, key_length);
 }
 
 string DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize) {
@@ -66,9 +67,9 @@ string DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize) {
 }
 
 extern "C" string CBCMode_Decrypt(const string &cipher) {
-    byte key[16];
-    strcpy(reinterpret_cast<char *>(key), LAIYE_MODEL_ENCRYPT_KEY);
-    return DO_CBCMode_Encrypt(cipher, key, sizeof(key));
+    byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
+    cout << key << endl;
+    return DO_CBCMode_Decrypt(cipher, key, key_length);
 }
 
 string tp2str(const Clock::time_point &tp) {
@@ -126,19 +127,17 @@ int main(int argc, char *argv[]) {
     }
 
 
+    byte *byte_key = (byte *) key.c_str();
     //Define the key and iv
-    byte byte_key[AES::DEFAULT_KEYLENGTH];
-    strcpy(reinterpret_cast<char *>(byte_key), key.c_str());
-
     if (mod == "enc") {
         auto data = FileUtils::read(input);
-        auto cipher = DO_CBCMode_Encrypt(data, byte_key, sizeof(key));
+        auto cipher = DO_CBCMode_Encrypt(data, byte_key, key_length);
         FileUtils::write(output, cipher);
         cout << "加密完成" << endl;
         exit(0);
     } else if (mod == "dec") {
         auto data = FileUtils::read(input);
-        auto plain = DO_CBCMode_Decrypt(data, byte_key, sizeof(key));
+        auto plain = DO_CBCMode_Decrypt(data, byte_key, key_length);
         FileUtils::write(output, plain);
         cout << "解密完成" << endl;
         exit(0);

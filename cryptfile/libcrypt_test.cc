@@ -19,6 +19,7 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt)
 
     std::string origin_text = "test_data";
     auto cipher = cbcModeEncrypt(origin_text);
+    std::cout << "sdfs"<< std::endl;
     typedef std::string (*CBCMode_Decrypt_t)(const std::string &cipher);
 
     dlerror();
@@ -27,8 +28,7 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt)
     const char *dlsym_decrypt_err = dlerror();
     ASSERT_FALSE(dlsym_decrypt_err);
     auto plain_text = cbcModeDecrypt(cipher);
-    ASSERT_EQ(origin_text, plain_text
-    );
+    ASSERT_EQ(origin_text, plain_text);
     dlclose(handle);
 }
 
