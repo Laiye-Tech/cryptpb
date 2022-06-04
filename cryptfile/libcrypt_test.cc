@@ -31,4 +31,3 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt)
     ASSERT_EQ(origin_text, plain_text);
     dlclose(handle);
 }
-

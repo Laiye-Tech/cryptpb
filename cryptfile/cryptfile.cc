@@ -26,7 +26,8 @@ const int key_length = 16;
 #endif
 
 // using CryptoPP::ArraySink;
-string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) {
+string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) 
+{
     string cipher = "";
     //Encryption
     try {
@@ -49,7 +50,8 @@ extern "C" string CBCMode_Encrypt(const string &text) {
     return DO_CBCMode_Encrypt(text, key, key_length);
 }
 
-string DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize) {
+string DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize) 
+{
     string recovered = "";
     //Decryption
     try {
