@@ -39,7 +39,7 @@ string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) {
     }
     catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
-        exit(-1);
+        exit(1);
     }
     return cipher;
 }
