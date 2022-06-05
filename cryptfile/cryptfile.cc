@@ -26,9 +26,8 @@ const int key_length = 16;
 #endif
 
 // using CryptoPP::ArraySink;
-string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) 
-{
-    string cipher = "";
+string DO_CBCMode_Encrypt(const string &text, byte key[], int keySize) {
+    string cipher;
     //Encryption
     try {
         CBC_Mode<AES>::Encryption e;
@@ -50,28 +49,24 @@ extern "C" string CBCMode_Encrypt(const string &text) {
     return DO_CBCMode_Encrypt(text, key, key_length);
 }
 
-string DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize) 
-{
-    string recovered = "";
-    //Decryption
+void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &plain) {
     try {
         CBC_Mode<AES>::Decryption d;
         d.SetKeyWithIV(key, keySize, iv);
         // The StreamTransformationFilter removes
         //  padding as required.
-        StringSource s(cipher, true, new StreamTransformationFilter(d, new StringSink(recovered))); // StringSource
+        StringSource s(cipher, true,
+                       new StreamTransformationFilter(d, new StringSink(plain))); // StringSource
     }
     catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
-        exit(1);
     }
-    return recovered;
 }
 
-extern "C" string CBCMode_Decrypt(const string &cipher) {
+extern "C" void CBCMode_Decrypt(const string &cipher, string &plain) {
     byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
     cout << key << endl;
-    return DO_CBCMode_Decrypt(cipher, key, key_length);
+    DO_CBCMode_Decrypt(cipher, key, key_length, plain);
 }
 
 string tp2str(const Clock::time_point &tp) {
@@ -139,7 +134,8 @@ int main(int argc, char *argv[]) {
         exit(0);
     } else if (mod == "dec") {
         auto data = FileUtils::read(input);
-        auto plain = DO_CBCMode_Decrypt(data, byte_key, key_length);
+        string plain;
+        DO_CBCMode_Decrypt(data, byte_key, key_length, plain);
         FileUtils::write(output, plain);
         cout << "解密完成" << endl;
         exit(0);
