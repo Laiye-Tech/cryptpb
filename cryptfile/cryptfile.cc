@@ -65,7 +65,6 @@ void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &p
 
 extern "C" void CBCMode_Decrypt(const string &cipher, string &plain) {
     byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
-    cout << key << endl;
     DO_CBCMode_Decrypt(cipher, key, key_length, plain);
 }
 
@@ -136,6 +135,9 @@ int main(int argc, char *argv[]) {
         auto data = FileUtils::read(input);
         string plain;
         DO_CBCMode_Decrypt(data, byte_key, key_length, plain);
+        if (plain == "") {
+            exit(1);
+        }
         FileUtils::write(output, plain);
         cout << "解密完成" << endl;
         exit(0);

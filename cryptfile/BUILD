@@ -12,16 +12,6 @@ make(
     static_libraries = ["libcryptopp.a"],
 )
 
-cmake_external(
-    name = "cxxopts",
-    headers_only = True,
-    lib_source = "@cxxopts//:all",
-    make_commands = [
-        "make -j$(nproc)",
-        "make install",
-    ],
-)
-
 cc_binary(
     name = "cryptfile",
     srcs = [
@@ -36,7 +26,7 @@ cc_binary(
     ],
     deps = [
         ":cryptopp",
-        ":cxxopts",
+        "@github_cxxopts//:cxxopts",
     ],
 )
 
@@ -58,7 +48,7 @@ cc_binary(
     linkshared = True,
     deps = [
         ":cryptopp",
-        ":cxxopts",
+        "@github_cxxopts//:cxxopts",
     ],
 )
 

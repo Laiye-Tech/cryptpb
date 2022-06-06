@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <dlfcn.h>
 #include <string>
+#include <mutex>
 
 typedef std::string (*CBCMode_Encrypt_t)(const std::string &text);
 

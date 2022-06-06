@@ -1,0 +1,19 @@
+name: bazel-build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-with-bazel:
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: BUILD
+      run: bazel build --define=LAIYE_MODEL_ENCRYPT_KEY=My123sjsrjsd2345 cryptfile/...
