@@ -45,9 +45,6 @@ cc_binary(
         "cryptopp/include",
         "cxxopts/include",
     ],
-    linkopts = [
-        "-ldl",
-    ],
     linkshared = True,
     deps = [
         ":cryptopp",
@@ -59,6 +56,9 @@ cc_test(
     name = "libcrypt_test",
     size = "small",
     srcs = ["libcrypt_test.cc"],
+    linkopts = [
+        "-ldl",
+    ],
     deps = [
         ":cryptopp",
         "@com_google_googletest//:gtest_main",
