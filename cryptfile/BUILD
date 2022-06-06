@@ -45,6 +45,9 @@ cc_binary(
         "cryptopp/include",
         "cxxopts/include",
     ],
+    linkopts = [
+        "-ldl",
+    ],
     linkshared = True,
     deps = [
         ":cryptopp",
