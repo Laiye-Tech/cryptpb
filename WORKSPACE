@@ -39,11 +39,10 @@ http_archive(
 )
 
 http_archive(
-    name = "cxxopts",
-    build_file_content = all_content,
-    sha256 = "f9640c00d9938bedb291a21f9287902a3a8cee38db6910b905f8eba4a6416204",
-    strip_prefix = "cxxopts-2.2.0",
-    urls = ["https://github.com/jarro2783/cxxopts/archive/v2.2.0.zip"],
+    name = "github_cxxopts",
+    sha256 = "1eefdf5af3ba0c66458258de05df2a113262ad5e85cac489de0a456088e9f9b0",
+    strip_prefix = "cxxopts-3.0.0",
+    urls = ["https://github.com/jarro2783/cxxopts/archive/v3.0.0.zip"],
 )
 
 http_archive(
