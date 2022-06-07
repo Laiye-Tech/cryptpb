@@ -65,7 +65,6 @@ void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &p
 
 extern "C" void CBCMode_Decrypt(const string &cipher, string &plain) {
     std::cout << "cipher: " << std::endl;
-    std::cout << cipher << std::endl;
     std::cout << "cipher:" << std::endl;
     std::cout << "plain: " <<std::endl;
     std::cout << plain  << std::endl;
