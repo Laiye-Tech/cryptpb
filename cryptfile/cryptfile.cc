@@ -64,8 +64,8 @@ void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &p
 }
 
 extern "C" void CBCMode_Decrypt(const string &cipher, string &plain) {
-    std::cout << "cipher: " << cipher << std::endl;
-    std::cout << "plain: " << plain << std::endl;
+    std::cout << "cipher: " << cipher << ": cipher"<< std::endl;
+    std::cout << "plain: " << plain << ": plain" << std::endl;
     std::cout << "key: " << LAIYE_MODEL_ENCRYPT_KEY << std::endl;
     byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
     DO_CBCMode_Decrypt(cipher, key, key_length, plain);
