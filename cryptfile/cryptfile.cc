@@ -49,7 +49,8 @@ extern "C" string CBCMode_Encrypt(const string &text) {
     return DO_CBCMode_Encrypt(text, key, key_length);
 }
 
-void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &plain) {
+string DO_CBCMode_Decrypt(const string cipher, byte key[], int keySize) {
+    string plain;
     try {
         CBC_Mode<AES>::Decryption d;
         d.SetKeyWithIV(key, keySize, iv);
@@ -61,17 +62,12 @@ void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &p
     catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
     }
+    return plain;
 }
 
-extern "C" void CBCMode_Decrypt(const string &cipher, string &plain) {
-    std::cout << "cipher: " << std::endl;
-    std::cout << "cipher:" << std::endl;
-    std::cout << "plain: " <<std::endl;
-    std::cout << plain  << std::endl;
-    std::cout << "plain:" << std::endl;
-    std::cout << "key: " << LAIYE_MODEL_ENCRYPT_KEY << std::endl;
+extern "C" string CBCMode_Decrypt(const string cipher) {
     byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
-    DO_CBCMode_Decrypt(cipher, key, key_length, plain);
+    return DO_CBCMode_Decrypt(cipher, key, key_length);
 }
 
 string tp2str(const Clock::time_point &tp) {
@@ -139,9 +135,9 @@ int main(int argc, char *argv[]) {
         exit(0);
     } else if (mod == "dec") {
         auto data = FileUtils::read(input);
-        string plain;
-        DO_CBCMode_Decrypt(data, byte_key, key_length, plain);
+        auto plain = DO_CBCMode_Decrypt(data, byte_key, key_length);
         if (plain == "") {
+            cout << "加密失败" << std::endl;
             exit(1);
         }
         FileUtils::write(output, plain);

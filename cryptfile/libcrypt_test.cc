@@ -5,7 +5,7 @@
 
 typedef std::string (*CBCMode_Encrypt_t)(const std::string &text);
 
-typedef void (*CBCMode_Decrypt_t)(const std::string &cipher, std::string &plain);
+typedef std::string (*CBCMode_Decrypt_t)(const std::string cipher);
 
 std::mutex lib_crypt_lock;
 
@@ -15,10 +15,10 @@ void *getHandler() {
     return handle;
 }
 
-void decryptCBC(std::string cipher, std::string &plain) {
+std::string decryptCBC(std::string cipher) {
     auto handler = getHandler();
     if (!handler) {
-        std::cout<< "failed to load libcryptfile.so" << std::endl;
+        std::cout << "failed to load libcryptfile.so" << std::endl;
     }
     dlerror();
     auto cbcModeDecrypt = (CBCMode_Decrypt_t) dlsym(handler, "CBCMode_Decrypt");
@@ -26,7 +26,7 @@ void decryptCBC(std::string cipher, std::string &plain) {
     if (dlsym_encrypt_err) {
         std::cout << "failed to load CBCMode_Decrypt function symbol" << std::endl;
     }
-    cbcModeDecrypt(cipher, plain);
+    return cbcModeDecrypt(cipher);
 }
 
 CBCMode_Encrypt_t getEncryptFunc() {
@@ -42,8 +42,7 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt) {
     std::string origin_text = "test_data";
     auto cipher = cbcModeEncrypt(origin_text);
 
-    std::string plain_text;
-    decryptCBC(cipher, plain_text);
+    std::string plain_text = decryptCBC(cipher);
     ASSERT_EQ(origin_text, plain_text);
 
     cbcModeEncrypt = getEncryptFunc();
