@@ -2,6 +2,7 @@
 #include <dlfcn.h>
 #include <string>
 #include <mutex>
+#include <utility>
 
 typedef std::string (*CBCMode_Encrypt_t)(const std::string &text);
 
@@ -15,7 +16,7 @@ void *getHandler() {
     return handle;
 }
 
-std::string decryptCBC(std::string cipher) {
+void decryptCBC(std::string cipher, std::string &plain) {
     auto handler = getHandler();
     if (!handler) {
         std::cout << "failed to load libcryptfile.so" << std::endl;
@@ -26,7 +27,7 @@ std::string decryptCBC(std::string cipher) {
     if (dlsym_encrypt_err) {
         std::cout << "failed to load CBCMode_Decrypt function symbol" << std::endl;
     }
-    return cbcModeDecrypt(cipher);
+    plain = cbcModeDecrypt(std::move(cipher));
 }
 
 CBCMode_Encrypt_t getEncryptFunc() {
@@ -42,7 +43,8 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt) {
     std::string origin_text = "test_data";
     auto cipher = cbcModeEncrypt(origin_text);
 
-    std::string plain_text = decryptCBC(cipher);
+    std::string plain_text;
+    decryptCBC(cipher, plain_text);
     ASSERT_EQ(origin_text, plain_text);
 
     cbcModeEncrypt = getEncryptFunc();
