@@ -55,7 +55,10 @@ cc_binary(
 cc_test(
     name = "libcrypt_test",
     size = "small",
-    srcs = ["libcrypt_test.cc"],
+    srcs = [
+        "fileutils.h",
+        "libcrypt_test.cc",
+    ],
     linkopts = [
         "-ldl",
     ],
