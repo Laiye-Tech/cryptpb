@@ -137,17 +137,17 @@ int main(int argc, char *argv[]) {
         cout << "加密完成" << endl;
         exit(0);
     } else if (mod == "dec") {
-//        auto data = FileUtils::read(input);
-//        char *plain_char[1];
-//        DO_CBCMode_Decrypt(data.c_str(), byte_key, key_length, plain_char);
-//        string plain(plain_char[0]);
-//        if (plain == "") {
-//            cout << "加密失败" << std::endl;
-//            exit(1);
-//        }
-//        FileUtils::write(output, plain);
-//        cout << "解密完成" << endl;
-//        exit(0);
+        auto data = FileUtils::read(input);
+        char *plain_char[1];
+        unsigned long result_size = DO_CBCMode_Decrypt(data.c_str(), byte_key, key_length, plain_char, data.length());
+        string plain(plain_char[0], result_size);
+        if (plain == "") {
+            cout << "加密失败" << std::endl;
+            exit(1);
+        }
+        FileUtils::write(output, plain);
+        cout << "解密完成" << endl;
+        exit(0);
     } else {
         cout << "invalid mod" << endl;
     }
