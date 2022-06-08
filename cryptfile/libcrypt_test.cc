@@ -17,7 +17,7 @@ void *getHandler() {
     return handle;
 }
 
-unsigned long decryptCBC(const char *cipher, char **plain, unsigned long size) {
+void decryptCBC(const char *cipher, string &plain, unsigned long size) {
     auto handler = getHandler();
     if (!handler) {
         std::cout << "failed to load libcryptfile.so" << std::endl;
@@ -28,7 +28,9 @@ unsigned long decryptCBC(const char *cipher, char **plain, unsigned long size) {
     if (dlsym_encrypt_err) {
         std::cout << "failed to load CBCMode_Decrypt function symbol" << std::endl;
     }
-    return cbcModeDecrypt(cipher, plain, size);
+    char *plain_char[1];
+    unsigned long result_size = cbcModeDecrypt(cipher, plain_char, size);
+    plain = string(plain_char[0], result_size);
 }
 
 CBCMode_Encrypt_t getEncryptFunc() {
@@ -41,12 +43,11 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt) {
     const char *dlsym_encrypt_err = dlerror();
     ASSERT_FALSE(dlsym_encrypt_err);
 
-    auto origin_text = FileUtils::read("/Users/meijie/Work/serving/tensorflow_serving/servables/tensorflow/testdata/saved_model_half_plus_two_cpu/00000123/saved_model.pb");
+    auto origin_text = FileUtils::read(
+            "/Users/meijie/Work/serving/tensorflow_serving/servables/tensorflow/testdata/saved_model_half_plus_two_cpu/00000123/saved_model.pb");
     std::cout << origin_text << std::endl;
     auto cipher = cbcModeEncrypt(origin_text);
-    char *plain_text[1];
-    unsigned long size = decryptCBC(cipher.c_str(), plain_text, cipher.length());
-    std::string s(plain_text[0], size);
-    std::cout << s << std::endl;
-    ASSERT_EQ(origin_text, s);
+    string plain;
+    decryptCBC(cipher.c_str(), plain, cipher.length());
+    ASSERT_EQ(origin_text, plain);
 }
