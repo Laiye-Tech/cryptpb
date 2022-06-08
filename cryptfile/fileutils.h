@@ -22,13 +22,16 @@ public:
  
         string file(filesize,'\0');
         ifs.read(&file[0], filesize);
+        ifs.close();
         return file;//uses NRVO to avoid copy constructor
     }
     static void write(const std::string& filename, const std::string& data)
     {
         ofstream ofs(filename.c_str(), ios::out | ios::binary | ios::trunc);
- 
-        ofs.write(&data[0], data.length());
+        if (ofs.good()) {
+            ofs.write(&data[0], data.length());
+            ofs.close();
+        }
         return;
     }
     static void write_append(const std::string& filename, const std::string& data)

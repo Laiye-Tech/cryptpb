@@ -63,8 +63,9 @@ unsigned long DO_CBCMode_Decrypt(const char *cipher, byte key[], int keySize, ch
     catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
     }
-    plain[0] = new char[plain_str.length()];
+    plain[0] = new char[plain_str.length()+1];
     std::copy(plain_str.begin(), plain_str.end(), plain[0]);
+    plain[0][plain_str.length()] = '\0';
     return plain_str.length();
 }
 
@@ -113,7 +114,7 @@ int main(int argc, char *argv[]) {
             ("m,mod", "mode: enc/dec", cxxopts::value<string>(mod))
             ("i,input", "input file name", cxxopts::value<string>(input))
             ("o,output", "output file name", cxxopts::value<string>(output))
-            ("k, key", "key to enc/dec model", cxxopts::value<string>(key))
+            ("k,key", "key to enc/dec model", cxxopts::value<string>(key))
             ("help", "Print help");
 
     auto result = options.parse(argc, argv);
@@ -126,7 +127,6 @@ int main(int argc, char *argv[]) {
         std::cout << "input file is not exists." << std::endl;
         exit(0);
     }
-
 
     byte *byte_key = (byte *) key.c_str();
     //Define the key and iv
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
         unsigned long result_size = DO_CBCMode_Decrypt(data.c_str(), byte_key, key_length, plain_char, data.length());
         string plain(plain_char[0], result_size);
         if (plain == "") {
-            cout << "加密失败" << std::endl;
+            cout << "解密失败" << std::endl;
             exit(1);
         }
         FileUtils::write(output, plain);

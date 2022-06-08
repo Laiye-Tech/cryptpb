@@ -4,6 +4,7 @@
 #include <mutex>
 #include <utility>
 #include "fileutils.h"
+#include <cstdlib>
 
 typedef std::string (*CBCMode_Encrypt_t)(const std::string &text);
 
@@ -45,9 +46,13 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt) {
 
     auto origin_text = FileUtils::read(
             "/Users/meijie/Work/serving/tensorflow_serving/servables/tensorflow/testdata/saved_model_half_plus_two_cpu/00000123/saved_model.pb");
-    std::cout << origin_text << std::endl;
-    auto cipher = cbcModeEncrypt(origin_text);
+//    auto cipher = cbcModeEncrypt(origin_text);
+    auto cipher = FileUtils::read("/Users/meijie/Source/cryptpb/saved_model.pb.enc");
+//    FileUtils::write("/Users/meijie/Source/cryptpb/test.bat2", cipher);
+//    auto cipher2 = FileUtils::read("/Users/meijie/Source/cryptpb/test.bat2");
+//    ASSERT_EQ(cipher, cipher2);
     string plain;
     decryptCBC(cipher.c_str(), plain, cipher.length());
     ASSERT_EQ(origin_text, plain);
 }
+
