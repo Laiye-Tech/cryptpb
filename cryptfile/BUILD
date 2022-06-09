@@ -56,8 +56,8 @@ cc_test(
     name = "libcrypt_test",
     size = "small",
     srcs = [
-        "fileutils.h",
-        "libcrypt_test.cc",
+      "libcrypt_test.cc",
+      "fileutils.h"
     ],
     linkopts = [
         "-ldl",
