@@ -17,3 +17,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: BUILD
       run: bazel build --define=LAIYE_MODEL_ENCRYPT_KEY=My123sjsrjsd2345 cryptfile/...
+    - name: docker build
+      run: docker build -t cryptpb -f docker/Dockerfile .
