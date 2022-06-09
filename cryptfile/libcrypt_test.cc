@@ -2,10 +2,13 @@
 #include <dlfcn.h>
 #include <string>
 #include <mutex>
+#include <utility>
+#include "fileutils.h"
+#include <cstdlib>
 
 typedef std::string (*CBCMode_Encrypt_t)(const std::string &text);
 
-typedef void (*CBCMode_Decrypt_t)(const std::string &cipher, std::string &plain);
+typedef unsigned long (*CBCMode_Decrypt_t)(const char *cipher, char **plain, unsigned long size);
 
 std::mutex lib_crypt_lock;
 
@@ -15,10 +18,10 @@ void *getHandler() {
     return handle;
 }
 
-void decryptCBC(std::string cipher, std::string &plain) {
+void decryptCBC(const char *cipher, string &plain, unsigned long size) {
     auto handler = getHandler();
     if (!handler) {
-        std::cout<< "failed to load libcryptfile.so" << std::endl;
+        std::cout << "failed to load libcryptfile.so" << std::endl;
     }
     dlerror();
     auto cbcModeDecrypt = (CBCMode_Decrypt_t) dlsym(handler, "CBCMode_Decrypt");
@@ -26,7 +29,9 @@ void decryptCBC(std::string cipher, std::string &plain) {
     if (dlsym_encrypt_err) {
         std::cout << "failed to load CBCMode_Decrypt function symbol" << std::endl;
     }
-    cbcModeDecrypt(cipher, plain);
+    char *plain_char[1];
+    unsigned long result_size = cbcModeDecrypt(cipher, plain_char, size);
+    plain = string(plain_char[0], result_size);
 }
 
 CBCMode_Encrypt_t getEncryptFunc() {
@@ -38,15 +43,10 @@ TEST(LibcryptTest, BasicEncryptAndDecrypt) {
     auto cbcModeEncrypt = getEncryptFunc();
     const char *dlsym_encrypt_err = dlerror();
     ASSERT_FALSE(dlsym_encrypt_err);
-
-    std::string origin_text = "test_data";
+    auto origin_text = "test_data";
     auto cipher = cbcModeEncrypt(origin_text);
-
-    std::string plain_text;
-    decryptCBC(cipher, plain_text);
-    ASSERT_EQ(origin_text, plain_text);
-
-    cbcModeEncrypt = getEncryptFunc();
-    cbcModeEncrypt(origin_text);
-
+    std::string plain;
+    decryptCBC(cipher.c_str(), plain, cipher.length());
+    ASSERT_EQ(origin_text, plain);
 }
+

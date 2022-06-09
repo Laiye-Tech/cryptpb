@@ -49,23 +49,29 @@ extern "C" string CBCMode_Encrypt(const string &text) {
     return DO_CBCMode_Encrypt(text, key, key_length);
 }
 
-void DO_CBCMode_Decrypt(const string &cipher, byte key[], int keySize, string &plain) {
+unsigned long DO_CBCMode_Decrypt(const char *cipher, byte key[], int keySize, char **plain, unsigned long size) {
+    string plain_str;
+    string c(cipher, size);
     try {
         CBC_Mode<AES>::Decryption d;
         d.SetKeyWithIV(key, keySize, iv);
         // The StreamTransformationFilter removes
         //  padding as required.
-        StringSource s(cipher, true,
-                       new StreamTransformationFilter(d, new StringSink(plain))); // StringSource
+        StringSource s(c, true,
+                       new StreamTransformationFilter(d, new StringSink(plain_str))); // StringSource
     }
     catch (const CryptoPP::Exception &e) {
         cerr << e.what() << endl;
     }
+    plain[0] = new char[plain_str.length()+1];
+    std::copy(plain_str.begin(), plain_str.end(), plain[0]);
+    plain[0][plain_str.length()] = '\0';
+    return plain_str.length();
 }
 
-extern "C" void CBCMode_Decrypt(const string &cipher, string &plain) {
+extern "C" unsigned long CBCMode_Decrypt(const char *cipher, char **plain, int size) {
     byte *key = (byte *) LAIYE_MODEL_ENCRYPT_KEY;
-    DO_CBCMode_Decrypt(cipher, key, key_length, plain);
+    return DO_CBCMode_Decrypt(cipher, key, key_length, plain, size);
 }
 
 string tp2str(const Clock::time_point &tp) {
@@ -108,7 +114,7 @@ int main(int argc, char *argv[]) {
             ("m,mod", "mode: enc/dec", cxxopts::value<string>(mod))
             ("i,input", "input file name", cxxopts::value<string>(input))
             ("o,output", "output file name", cxxopts::value<string>(output))
-            ("k, key", "key to enc/dec model", cxxopts::value<string>(key))
+            ("k,key", "key to enc/dec model", cxxopts::value<string>(key))
             ("help", "Print help");
 
     auto result = options.parse(argc, argv);
@@ -122,7 +128,6 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-
     byte *byte_key = (byte *) key.c_str();
     //Define the key and iv
     if (mod == "enc") {
@@ -133,9 +138,11 @@ int main(int argc, char *argv[]) {
         exit(0);
     } else if (mod == "dec") {
         auto data = FileUtils::read(input);
-        string plain;
-        DO_CBCMode_Decrypt(data, byte_key, key_length, plain);
+        char *plain_char[1];
+        unsigned long result_size = DO_CBCMode_Decrypt(data.c_str(), byte_key, key_length, plain_char, data.length());
+        string plain(plain_char[0], result_size);
         if (plain == "") {
+            cout << "解密失败" << std::endl;
             exit(1);
         }
         FileUtils::write(output, plain);
