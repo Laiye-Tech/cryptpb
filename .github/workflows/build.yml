@@ -18,4 +18,4 @@ jobs:
     - name: BUILD
       run: bazel build --define=LAIYE_MODEL_ENCRYPT_KEY=My123sjsrjsd2345 cryptfile/...
     - name: docker build
-      run: docker build -t cryptpb -f docker/Dockerfile .
+      run: docker build --build-arg LAIYE_MODEL_ENCRYPT_KEY="My123sjsrjsd2345" -t cryptpb -f docker/Dockerfile .
